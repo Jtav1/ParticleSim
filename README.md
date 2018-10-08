@@ -1,11 +1,11 @@
 # ParticleSim
 Web browser particle simulation exercise
 
-##Usage
+## Usage
 By default, the simulation shows a snowfall. Click the blue and white buttons to switch between Rainfall and Snowfall, respectively.
 
 ## About the Implementation
-###How to run ParticleSim
+### How to run ParticleSim
 Open ParticleSim.html in your web browser. The implementation is entirely contained within that file, and has been tested for compatability with current builds of:
 1. Chrome
 2. Firefox
