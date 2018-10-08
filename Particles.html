@@ -80,7 +80,7 @@
             if (btnType == "Snow") {
                 buttonColor = "#ffffff";
             } else if (btnType == "Rain") {
-                buttonColor = "#5b94ff"
+                buttonColor = "#3439bc"
             }
 
             this.draw = function () {
@@ -135,9 +135,15 @@
             }
         }
 
+        function mouseInRect(loc, rect) {
+
+        }
+
 
         cvs.addEventListener('click', function (evt) {
             var loc = getMousePosition(cvs, evt);
+
+            
 
 
 
