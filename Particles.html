@@ -88,16 +88,28 @@
 
                 if (this.shape == "Round") {
                     if (speed.value != 0) {
-                        this.x = this.x + (speed.value/5);
+                        this.x = this.x + (speed.value / 5);
                     }
                     ctx.beginPath();
                     ctx.fillStyle = this.colorVal;
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, true);
                     ctx.closePath();
                     ctx.fill();
+
                 } else if (this.shape == "Rect") {
+                    if (speed.value != 0) {
+                        this.x = this.x + (speed.value / 2.5);
+
+                        //Raindrops are heavier at the bottom, simulate wind effect on the entire raindrop
+                        ctx.fillRect(this.x, this.y, this.size, (this.size));
+                        ctx.fillRect((this.x - (speed.value / 2.5)), (this.y - this.size), this.size, (this.size));
+                        ctx.fillRect((this.x - 2 * (speed.value / 2.5)), (this.y - (2 * this.size)), this.size, (this.size));
+
+                    } else {
+                        //No wind - normal rectangle raindrops (3 units long)
+                        ctx.fillRect(this.x, this.y, this.size, (this.size * 3));
+                    }
                     ctx.fillStyle = this.colorVal;
-                    ctx.fillRect(this.x, this.y, this.size, (this.size * 3));
                 }
             };
         }

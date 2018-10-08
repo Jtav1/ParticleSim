@@ -5,7 +5,6 @@ Web browser particle simulation exercise
 By default, the simulation shows a snowfall. Click the blue and white buttons to switch between Rainfall and Snowfall, respectively.
 
 * The Windspeed slider contrls the horizontal "wind" force on the falling particles. Snow is lighter than rain.
-  * Note that particles only spawn from the top of the simulation, not outside. Particles will be blown off the screen, but new particles will not be blown onto the screen. 
 * The Particle Density slider controls the chance that a new particle will spawn on any given refresh of the simulation (currently hardcoded to 30ms).
 * The Gravity slider controls the force of "gravity" pulling the particles towards the ground. Negative gravity is not an option, we haven't invented that yet.
 
@@ -18,7 +17,8 @@ Open ParticleSim.html in your web browser. The implementation is entirely contai
 
 ### Design choices
 * ParticleSim contains functions for creating Particles and Buttons, which should allow for ease of adding new particles and buttons to select them.
-* Sliders were a creative liberty, I wanted to see if I could effectively change the properties of the simulation "world" on the fly
+* Sliders were a creative liberty, I wanted to see if I could effectively change the properties of the simulation "world" on the fly.
+  * Note that particles only spawn from the top of the simulation, not outside. Particles can be blown off the canvas, but new particles will not be created off-canvas and blown onto the canvas. 
 
 
 ## Why ParticleSim?
