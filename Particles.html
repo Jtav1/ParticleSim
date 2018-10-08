@@ -7,9 +7,26 @@
 </head>
 <body>
     <canvas id="particleCanvas" width="400" height="400"></canvas>
+    <table>
+        <tr>
+            <td>Windspeed (-5 to 5):</td>
+            <td><input type="range" min="-5" max="5" value="0" class="slider" id="speed"></span></td>
+        </tr>
+        <tr>
+            <td>Particle Density (1% to 100%):</td>
+            <td><input type="range" min="1" max="100" value="80" class="slider" id="density"></td>
+        </tr>
+        <tr>
+            <td>Gravity (1x to 10x)</td>
+            <td><input type="range" min="1" max="10" value="1" class="slider" id="gravity"></td>
+        </tr>
+    </table>
     <script>
 
         var cvs = document.getElementById("particleCanvas");
+        var windSpeed = document.getElementById("speed");
+        var density = document.getElementById("density");
+        var gravity = document.getElementById("gravity");
         var ctx = cvs.getContext("2d");
 
         //Array that will contain all particles on the screen
@@ -21,39 +38,44 @@
 
         function Particle() {
 
+            //Future Todo: abstract this out rather than hard-code in function?
             switch (particleType) {
                 case "Snow":
                     this.x = Math.floor(Math.random() * cvs.width);
                     this.y = 0;
-                    this.XDir = (Math.random() * 2) >= 1 ? 1 : -1; //positive-x/negative-x movement
-                    this.size = (Math.random() * 6);
+                    this.XDir = (Math.random() * 2) >= 1 ? 1 : -1;                                      //positive-x/negative-x movement
+                    this.size = (Math.random() * 5);                                                    //Particle size
                     this.colorR = 175 + (Math.ceil(this.size) * 20);
                     this.colorG = this.colorR;
                     this.colorB = this.colorR;
                     this.colorVal = "rgb(" + this.colorR + "," + this.colorG + "," + this.colorB + ")"; //Smaller particles = darker
                     this.gravity = 0.5;
                     this.shape = "Round";
+                    this.speed = (Math.floor(Math.random() * this.size) / 5);//Horizontal speed
                     break;
                 case "Rain":
                     this.x = Math.floor(Math.random() * cvs.width);
                     this.y = 0;
                     this.XDir = 0;
-                    this.size = (Math.random() * 4);
-                    this.colorVal = "rgb(35,35," + 105 + (Math.ceil(this.size) * 20); + ")"; //Smaller particles = darker
+                    this.size = (Math.random() * 3);
+                    this.colorVal = "rgb(35,35," + 105 + (Math.ceil(this.size) * 20); + ")";
                     this.gravity = 5;
                     this.shape = "Rect";
+                    this.speed = 0;
                     break;
             }
 
+            //Particle knows its type and starting position
             this.type = particleType;
-            this.initialX = this.x; //Store the initial x position
+            this.initialX = this.x;
+
             particles[particleID++] = this;
 
+            //Draw function is abstract, and offers two Shape choices - Round/Rect
             this.draw = function () {
-                var moveX = (Math.floor(Math.random() * this.size) / 5);
-                this.y += this.gravity;
+                this.y += (this.gravity * gravity.value);
 
-                //Keep the particles roughly around their initial X position
+                //horizontal movement
                 if (this.x >= 50 + this.initialX) {
                     this.XDir = -1;
                 }
@@ -61,10 +83,13 @@
                     this.XDir = 1;
                 }
 
-                this.x += (moveX * this.XDir);
 
+                this.x += (this.speed * this.XDir);
 
                 if (this.shape == "Round") {
+                    if (speed.value != 0) {
+                        this.x = this.x + (speed.value/5);
+                    }
                     ctx.beginPath();
                     ctx.fillStyle = this.colorVal;
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, true);
@@ -72,7 +97,7 @@
                     ctx.fill();
                 } else if (this.shape == "Rect") {
                     ctx.fillStyle = this.colorVal;
-                    ctx.fillRect(this.x, this.y, this.size, (this.size*3));
+                    ctx.fillRect(this.x, this.y, this.size, (this.size * 3));
                 }
             };
         }
@@ -86,11 +111,11 @@
             this.buttonType = btnType; //Button is aware of its type
 
             //Place button at the bottom right corner, account for button border
-            //this.x = cvs.height - (buttonSize * buttonID) - (borderThickness/2); 
+            //this.x = cvs.height - (buttonSize * buttonID) - (borderThickness/2);
             //this.y = cvs.width - buttonSize - (borderThickness/2);
 
             //Or add more spacing than just the width of the border, to make the button row "float"
-            this.x = cvs.height - (this.buttonSize * buttonID) - 12; 
+            this.x = cvs.height - (this.buttonSize * buttonID) - 12;
             this.y = cvs.width - this.buttonSize - 12;
 
             buttons[buttonID] = this;
@@ -133,7 +158,8 @@
             ctx.fillRect(0, 0, cvs.width, cvs.height);
 
             //Replace with particle density value
-            if (Math.random() > 0.18) {
+
+            if (Math.random() > 1 - (density.value / 100)) {
                 new Particle();
             }
 
@@ -158,9 +184,9 @@
 
             if (clicked == "Canvas") {
                 //pause
-            } 
+            }
 
-            particleType = clicked;  
+            particleType = clicked;
             for (var p in particles) {
                 if (particles[p].particleType !== clicked) {
                     delete particles[p];
@@ -173,28 +199,22 @@
             for (var b in buttons) {
 
                 //Simplifying for readability
-                var btn = buttons[b]; 
+                var btn = buttons[b];
                 var btnSize = btn.buttonSize;
                 //var btnSize = btn.buttonSize + (btn.borderThickness / 2); //Include border in clickable button space
 
                 if ((loc.x >= btn.x && loc.x < btn.x + btnSize) && (loc.y >= btn.y && loc.y < btn.y + btnSize)) {
                     return btn.buttonType;
-                } 
+                }
             }
 
             //If canvas was clicked, but not a button
             return "Canvas";
         }
 
-
-
-
-
-
-
-
-   
     </script>
+
+
 
 </body>
 </html>
