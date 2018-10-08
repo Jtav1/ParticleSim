@@ -59,31 +59,41 @@
             };
         }
 
+        //Create button for the particle type btnType
         function Button(btnType) {
 
+            var buttonSize = 36; //Button size is 36x36 for prettier math
+            var borderThickness = 6;
 
-            this.x = cvs.height-(35 * buttonID);
-            this.y = cvs.width - 35;
+            //Place button at the bottom right corner, account for button border
+            //this.x = cvs.height - (buttonSize * buttonID) - (borderThickness/2); 
+            //this.y = cvs.width - buttonSize - (borderThickness/2);
+
+            //Or add more spacing than just the width of the border, to make the button row "float"
+            this.x = cvs.height - (buttonSize * buttonID) - 12; 
+            this.y = cvs.width - buttonSize - 12;
 
             buttons[buttonID] = this;
             this.id = buttonID++;
 
+            var buttonColor = "";
+            if (btnType == "Snow") {
+                buttonColor = "#ffffff";
+            } else if (btnType == "Rain") {
+                buttonColor = "#5b94ff"
+            }
+
             this.draw = function () {
 
-                ctx.fillStyle = "#8c8888";
-                ctx.fillRect(this.x, this.y, 35, 35);
+                ctx.fillStyle = buttonColor;
+                ctx.fillRect(this.x, this.y, buttonSize, buttonSize);
 
                 ctx.beginPath();
-                ctx.lineWidth = "6";
-                ctx.strokeStyle = "#a5a0a0";
-                ctx.rect(this.x, this.y, 35, 35);
+                ctx.lineWidth = borderThickness;
+                ctx.strokeStyle = "#4c4a4a";
+                ctx.rect(this.x, this.y, buttonSize, buttonSize);
                 ctx.stroke();
-
-
-
-                
             };
-
             
         }
 
@@ -100,11 +110,11 @@
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, cvs.width, cvs.height);
 
-            if (particleType == "Snow") {
-                if (Math.random() > 0.18) {
-                    new Particle();
-                }
+            //Replace with particle density value
+            if (Math.random() > 0.18) {
+                new Particle();
             }
+            
 
             for (var p in particles) {
                 particles[p].draw();
