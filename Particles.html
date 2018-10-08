@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <canvas id="particleCanvas" width="500" height="500"></canvas>
+    <script>
+
+        var cvs = document.getElementById("particleCanvas");
+        var ctx = cvs.getContext("2d");
+
+        //Array that will contain all particles on the screen
+        var particles = {}, particleID = 0,
+            particleType = "Snow"; //ParticleType accepted values: Snow, Rain
+
+        //Array that will contain all buttons on the screen
+        var buttons = {}, buttonID = 1; //Initialize to 1 for button X placement calculation
+
+        function Particle() {
+
+            var xRandom = Math.floor(Math.random() * cvs.width);
+
+            this.x = xRandom;
+            this.initialX = xRandom; //Store the initial x position
+            this.y = 0;
+
+            this.XDir = (Math.random() * 2) >= 1 ? 1 : -1; //positive-x/negative-x movement
+
+            var randomSize = (Math.random() * 4);
+            this.size = randomSize;
+
+            this.colorVal = 175 + (Math.ceil(randomSize) * 20); //Smaller particles = darker
+
+            particles[particleID++] = this;
+
+            this.draw = function () {
+                var moveX = (Math.floor(Math.random() * this.size) / 5);
+
+                //Keep the particles roughly around their initial X position
+                if (this.x >= 50 + this.initialX) {
+                    this.XDir = -1;
+                }
+                else if (this.x <= this.initialX - 50) {
+                    this.XDir = 1;
+                }
+
+                this.x += (moveX * this.XDir);
+
+                this.y += 0.5;
+
+                ctx.beginPath();
+                ctx.fillStyle = "rgb(" + this.colorVal + "," + this.colorVal + "," + this.colorVal + ")";
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, true);
+                ctx.closePath();
+                ctx.fill();
+            };
+        }
+
+        function Button(btnType) {
+
+
+            this.x = cvs.height-(35 * buttonID);
+            this.y = cvs.width - 35;
+
+            buttons[buttonID] = this;
+            this.id = buttonID++;
+
+            this.draw = function () {
+
+                ctx.fillStyle = "#8c8888";
+                ctx.fillRect(this.x, this.y, 35, 35);
+
+                ctx.beginPath();
+                ctx.lineWidth = "6";
+                ctx.strokeStyle = "#a5a0a0";
+                ctx.rect(this.x, this.y, 35, 35);
+                ctx.stroke();
+
+
+
+                
+            };
+
+            
+        }
+
+        new Button("Snow");
+        new Button("Rain");
+        //new Button("Bees"); //NOT THE BEES
+
+        //Add extended button handling
+
+
+        //Draw canvas
+        setInterval(function () {
+
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+            if (particleType == "Snow") {
+                if (Math.random() > 0.18) {
+                    new Particle();
+                }
+            }
+
+            for (var p in particles) {
+                particles[p].draw();
+            }
+
+            for (var b in buttons) {
+                buttons[b].draw();
+            }
+
+        }, 30);
+
+        //Click handling
+        function getMousePosition(canvas, event) {
+            var rect = canvas.getBoundingClientRect();
+            return {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
+            }
+        }
+
+
+        cvs.addEventListener('click', function (evt) {
+            var loc = getMousePosition(cvs, evt);
+
+
+
+
+
+
+        });
+
+
+
+
+
+
+
+
+   
+    </script>
+
+</body>
+</html>
