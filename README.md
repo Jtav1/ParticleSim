@@ -21,7 +21,7 @@ Open ParticleSim.html in your web browser. The implementation is entirely contai
 * Gravity is factored into the wind force on the particles, such that when gravity is turned up the "wind" still seems to have an effect.
 
 
-#### Why ParticleSim?
+### Why ParticleSim?
 I had no idea how to start this project, so I picked it because it put me the furthest outside my comfort zone :) I feel like I have a rough idea how to do the other two exercises - A Java OCR library like Aprise and some regex, or a tree of word beginnings and endings for the keyboard.  
 
 While I have worked in web development professionally, I haven't had a chance to play with some of the newer HTML5 features - I felt this was a good reason to learn about HTML5's Canvas.
