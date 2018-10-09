@@ -50,15 +50,15 @@
                     this.XDir = (Math.random() * 2) >= 1 ? 1 : -1;  //Direction of movement
                     this.size = (Math.random() * 5);                //Particle size
 
-                    //Color calculation
+                    //Color calculation (Smaller particles = darker)
                     var colorR = 175 + (Math.ceil(this.size) * 20); 
                     var colorG = colorR;
                     var colorB = colorR;
-                    this.colorVal = "rgb(" + colorR + "," + colorG + "," + colorB + ")"; //Smaller particles = darker
+                    this.colorVal = "rgb(" + colorR + "," + colorG + "," + colorB + ")"; 
 
-                    this.gravity = 0.5;
-                    this.shape = "Round";
-                    this.speed = (Math.floor(Math.random() * this.size) / 5);//Horizontal speed
+                    this.gravity = 0.5;             //Vertical Speed
+                    this.shape = "Round";           //Shape
+                    this.speed = (Math.floor(Math.random() * this.size) / 5);   //Horizontal speed
                     break;
                 case "Rain":
                     this.x = Math.floor(Math.random() * cvs.width);
@@ -85,8 +85,9 @@
                 if (!paused) {
                     this.y += (this.gravity * gravity.value);
 
-                    if (this.y >= cvs.height) {
-                        delete this;
+                    //If this particle falls off the screen, delete it to save memory space
+                    if (this.y >= cvs.height + this.size) {
+                        delete particles[this.particleID];
                     }
 
                     //horizontal movement
@@ -118,7 +119,6 @@
                     ctx.fillRect((this.x - 2 * (gravity.value * 0.5 * speed.value / 5)), (this.y - (2 * this.size)), this.size, (this.size));
                 }
                 ctx.fillStyle = this.colorVal;
-
             };
         }
 
@@ -181,7 +181,8 @@
                     new Particle();
                 }
             }
-            
+
+            //Draw all objects
             for (var p in particles) {
                 particles[p].draw();
             }
@@ -193,7 +194,7 @@
         }, 30);
 
         //Handle button clicking events
-        cvs.addEventListener('click', function (evt) {
+        cvs.addEventListener("click", function (evt) {
             var loc = { x: 0, y: 0 };
 
             var rect = cvs.getBoundingClientRect();
