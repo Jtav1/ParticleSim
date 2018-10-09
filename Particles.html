@@ -23,32 +23,39 @@
     </table>
     <script>
 
+        //In order to add new particles -
+        //1: Update switch statement in Particle() to add properties for new Particle type
+        //2: Update Button to add new button color
+        //3: Add another new Button("Type") call
+
         var cvs = document.getElementById("particleCanvas");
-        var windSpeed = document.getElementById("speed");
-        var density = document.getElementById("density");
-        var gravity = document.getElementById("gravity");
         var ctx = cvs.getContext("2d");
 
-        //Array that will contain all particles on the screen
-        var particles = {}, particleID = 0
-        particleType = "Snow"; //Default to snowing
+        var speed = document.getElementById("speed"); 
+        var density = document.getElementById("density");
+        var gravity = document.getElementById("gravity");
 
-        //Array that will contain all buttons on the screen
-        var buttons = {}, buttonID = 1; //Initialize to 1 for button X placement calculation
+        var paused = false;
+        
+        //Arrays to contain screen objects
+        var particles = {}, particleID = 0,
+            particleType = "Snow"; 
+        var buttons = {}, buttonID = 1;
 
         function Particle() {
-
-            //Future Todo: abstract this out rather than hard-code in function?
             switch (particleType) {
                 case "Snow":
-                    this.x = Math.floor(Math.random() * cvs.width);
-                    this.y = 0;
-                    this.XDir = (Math.random() * 2) >= 1 ? 1 : -1;                                      //positive-x/negative-x movement
-                    this.size = (Math.random() * 5);                                                    //Particle size
-                    this.colorR = 175 + (Math.ceil(this.size) * 20);
-                    this.colorG = this.colorR;
-                    this.colorB = this.colorR;
-                    this.colorVal = "rgb(" + this.colorR + "," + this.colorG + "," + this.colorB + ")"; //Smaller particles = darker
+                    this.x = Math.floor(Math.random() * cvs.width); //Horizontal starting position
+                    this.y = 0;                                     //Vertical starting position
+                    this.XDir = (Math.random() * 2) >= 1 ? 1 : -1;  //Direction of movement
+                    this.size = (Math.random() * 5);                //Particle size
+
+                    //Color calculation
+                    var colorR = 175 + (Math.ceil(this.size) * 20); 
+                    var colorG = colorR;
+                    var colorB = colorR;
+                    this.colorVal = "rgb(" + colorR + "," + colorG + "," + colorB + ")"; //Smaller particles = darker
+
                     this.gravity = 0.5;
                     this.shape = "Round";
                     this.speed = (Math.floor(Math.random() * this.size) / 5);//Horizontal speed
@@ -58,7 +65,7 @@
                     this.y = 0;
                     this.XDir = 0;
                     this.size = (Math.random() * 3);
-                    this.colorVal = "rgb(35,35," + 105 + (Math.ceil(this.size) * 20); + ")";
+                    this.colorVal = "rgb(35,35," + 105 + (Math.ceil(this.size) * 20) + ")";
                     this.gravity = 5;
                     this.shape = "Rect";
                     this.speed = 0;
@@ -68,28 +75,36 @@
             //Particle knows its type and starting position
             this.type = particleType;
             this.initialX = this.x;
+            this.particleID = particleID;
 
             particles[particleID++] = this;
 
+
             //Draw function is abstract, and offers two Shape choices - Round/Rect
             this.draw = function () {
-                this.y += (this.gravity * gravity.value);
+                if (!paused) {
+                    this.y += (this.gravity * gravity.value);
 
-                //horizontal movement
-                if (this.x >= 50 + this.initialX) {
-                    this.XDir = -1;
+                    if (this.y >= cvs.height) {
+                        delete this;
+                    }
+
+                    //horizontal movement
+                    if (this.x >= 50 + this.initialX) {
+                        this.XDir = -1;
+                    }
+                    else if (this.x <= this.initialX - 50) {
+                        this.XDir = 1;
+                    }
+
+                    this.x += (this.speed * this.XDir);
+
+                    if (speed != 0) {
+                        this.x = this.x + (gravity.value * 0.5 * (speed.value / 5));
+                    }
                 }
-                else if (this.x <= this.initialX - 50) {
-                    this.XDir = 1;
-                }
-
-
-                this.x += (this.speed * this.XDir);
 
                 if (this.shape == "Round") {
-                    if (speed.value != 0) {
-                        this.x = this.x + (gravity.value * .5 * (speed.value / 5));
-                    }
                     ctx.beginPath();
                     ctx.fillStyle = this.colorVal;
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, true);
@@ -97,20 +112,13 @@
                     ctx.fill();
 
                 } else if (this.shape == "Rect") {
-                    if (speed.value != 0) {
-                        this.x = this.x + (gravity.value * .5 * (speed.value / 2.5));
-
-                        //Raindrops are heavier at the bottom, simulate wind effect on the entire raindrop
-                        ctx.fillRect(this.x, this.y, this.size, (this.size));
-                        ctx.fillRect((this.x - (gravity.value * .5 * speed.value / 2.5)), (this.y - this.size), this.size, (this.size));
-                        ctx.fillRect((this.x - 2 * (gravity.value * .5 * speed.value / 2.5)), (this.y - (2 * this.size)), this.size, (this.size));
-
-                    } else {
-                        //No wind - normal rectangle raindrops (3 units long)
-                        ctx.fillRect(this.x, this.y, this.size, (this.size * 3));
-                    }
-                    ctx.fillStyle = this.colorVal;
+                    //Wind causes rectangular particles to "point"
+                    ctx.fillRect(this.x, this.y, this.size, (this.size));
+                    ctx.fillRect((this.x - (gravity.value * 0.5 * speed.value / 5)), (this.y - this.size), this.size, (this.size));
+                    ctx.fillRect((this.x - 2 * (gravity.value * 0.5 * speed.value / 5)), (this.y - (2 * this.size)), this.size, (this.size));
                 }
+                ctx.fillStyle = this.colorVal;
+
             };
         }
 
@@ -138,7 +146,7 @@
             if (btnType == "Snow") {
                 buttonColor = "#ffffff";
             } else if (btnType == "Rain") {
-                buttonColor = "#3439bc"
+                buttonColor = "#3439bc";
             }
 
             this.draw = function () {
@@ -152,11 +160,6 @@
                 ctx.rect(this.x, this.y, this.buttonSize, this.buttonSize);
                 ctx.stroke();
             };
-
-            this.clicked = function () {
-                console.log("clicked ");
-            }
-
         }
 
         new Button("Snow");
@@ -169,12 +172,16 @@
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, cvs.width, cvs.height);
 
-            //Replace with particle density value
+            //Add in multiple raindrops per panel - help make rain physics more visible
+            var numParticles = 1;
+            if (particleType == "Rain") numParticles = 5;
 
-            if (Math.random() > 1 - (density.value / 100)) {
-                new Particle();
+            for (var i = 1; i <= numParticles; i++) {
+                if ((Math.random() > 1 - (density.value / 100)) && !paused) {
+                    new Particle();
+                }
             }
-
+            
             for (var p in particles) {
                 particles[p].draw();
             }
@@ -185,6 +192,7 @@
 
         }, 30);
 
+        //Handle button clicking events
         cvs.addEventListener('click', function (evt) {
             var loc = { x: 0, y: 0 };
 
@@ -195,18 +203,18 @@
             var clicked = getClickedObject(loc);
 
             if (clicked == "Canvas") {
-                //pause
-            }
-
-            particleType = clicked;
-            for (var p in particles) {
-                if (particles[p].particleType !== clicked) {
-                    delete particles[p];
+                paused = !paused;
+            } else {
+                particleType = clicked;
+                for (var p in particles) {
+                    if (particles[p].particleType !== clicked) {
+                        delete particles[p];
+                    }
                 }
             }
-
         });
 
+        //Determine what was clicked, when a click happens
         function getClickedObject(loc) {
             for (var b in buttons) {
 
@@ -219,7 +227,6 @@
                     return btn.buttonType;
                 }
             }
-
             //If canvas was clicked, but not a button
             return "Canvas";
         }
